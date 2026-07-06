@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shorts Generator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#080b14;--s1:#0d1120;--s2:#131929;--s3:#1a2235;
+  --accent:#7c3aed;--accent2:#a855f7;--glow:rgba(124,58,237,0.2);
+  --green:#10b981;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;
+  --text:#f0f4ff;--text2:#8892b0;--text3:#4a5568;
+  --border:rgba(124,58,237,0.15);--r:12px;--rs:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* HEADER */
+.header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--s1);position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 20px var(--glow);}
+.logo-text{font-size:15px;font-weight:700;}
+.logo-sub{font-size:10px;color:var(--text2);}
+.btn-settings{background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:7px 13px;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .2s;}
+.btn-settings:hover{color:var(--text);border-color:var(--accent);}
+
+/* NAV TABS */
+.nav-tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{padding:12px 18px;border:none;background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--accent2);border-bottom-color:var(--accent);}
+
+/* MAIN LAYOUT */
+.main{display:grid;grid-template-columns:1fr 360px;min-height:calc(100vh - 109px);}
+.left{padding:20px;border-right:1px solid var(--border);overflow-y:auto;}
+.right{padding:20px;background:var(--s1);overflow-y:auto;}
+
+/* PAGE CONTENT */
+.page{display:none;}
+.page.active{display:block;}
+
+/* CARDS */
+.card{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:16px;}
+.card-title{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+
+/* FORM ELEMENTS */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;background:var(--s3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 13px;color:var(--text);font-size:13px;font-family:'Space Grotesk',sans-serif;transition:border-color .2s;-webkit-appearance:none;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--glow);}
+.field select option{background:var(--s2);}
+.field textarea{resize:vertical;min-height:160px;line-height:1.7;}
+.field textarea::placeholder{color:var(--text3);}
+
+/* GRID FIELDS */
+.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fields-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+/* TONE PILLS */
+.tone-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.tone-pill{padding:5px 13px;border-radius:20px;background:var(--s3);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Space Grotesk',sans-serif;}
+.tone-pill:hover{border-color:var(--accent2);color:var(--text);}
+.tone-pill.active{background:rgba(124,58,237,.2);border-color:var(--accent);color:var(--accent2);}
+
+/* SPEED SLIDER */
+.slider-wrap{display:flex;align-items:center;gap:12px;}
+.slider-wrap input[type=range]{flex:1;-webkit-appearance:none;height:4px;background:var(--s3);border-radius:2px;outline:none;}
+.slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 8px var(--glow);}
+.slider-val{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--accent2);min-width:30px;text-align:right;}
+
+/* CHAR INFO */
+.script-meta{display:flex;justify-content:space-between;margin-top:6px;}
+.script-meta span{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.script-meta span.warn{color:var(--yellow);}
+
+/* SCENES LIST */
+.scenes-list{display:flex;flex-direction:column;gap:8px;}
+.scene-card{background:var(--s3);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;transition:border-color .2s;}
+.scene-card.has-image{border-color:rgba(16,185,129,.2);}
+.scene-num{width:24px;height:24px;border-radius:6px;background:rgba(124,58,237,.2);color:var(--accent2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.scene-info{flex:1;min-width:0;}
+.scene-text{font-size:12px;color:var(--text);line-height:1.5;margin-bottom:5px;}
+.scene-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.scene-tag{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--s2);color:var(--text2);}
+.scene-tag.ok{color:var(--green);}
+.scene-img{width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid var(--border);}
+
+/* GENERATE BUTTON */
+.btn-generate{width:100%;padding:15px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .2s;box-shadow:0 0 30px var(--glow);display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-generate:hover{transform:translateY(-1px);box-shadow:0 0 40px var(--glow);}
+.btn-generate:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* PROGRESS */
+.progress-box{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-top:14px;display:none;}
+.progress-box.show{display:block;}
+.progress-bar-outer{background:var(--s3);border-radius:20px;height:6px;overflow:hidden;margin-bottom:8px;}
+.progress-bar-inner{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s ease;box-shadow:0 0 8px var(--glow);}
+.progress-label{font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:8px;}
+.progress-steps{display:flex;flex-direction:column;gap:3px;}
+.p-step{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px;}
+.p-step.done{color:var(--green);}
+.p-step.act{color:var(--accent2);}
+
+/* RIGHT PANEL - PREVIEW */
+.preview-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.phone-frame{width:200px;margin:0 auto;background:#000;border-radius:28px;border:2px solid var(--border);overflow:hidden;aspect-ratio:9/16;position:relative;box-shadow:0 0 50px rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;}
+.phone-frame video{width:100%;height:100%;object-fit:cover;}
+.preview-empty{text-align:center;color:var(--text3);padding:20px;}
+.preview-empty .ei{font-size:30px;margin-bottom:8px;}
+.preview-empty p{font-size:11px;line-height:1.6;}
+.preview-stats{background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-top:12px;}
+.ps-row{display:flex;justify-content:space-between;margin-bottom:4px;}
+.ps-row:last-child{margin:0;}
+.ps-label{font-size:10px;color:var(--text3);}
+.ps-val{font-size:11px;color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;}
+.quality-row{display:flex;gap:7px;margin-top:10px;}
+.q-btn{flex:1;padding:7px;border-radius:var(--rs);background:var(--s3);border:1px solid var(--border);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .2s;}
+.q-btn.active{background:rgba(124,58,237,.2);border-color:var(--accent);color:var(--accent2);}
+.btn-download{width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .2s;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-download:hover{background:#059669;transform:translateY(-1px);}
+.btn-download:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.preview-note{text-align:center;font-size:10px;color:var(--text3);margin-top:8px;line-height:1.6;}
+
+/* HISTORY */
+.history-list{display:flex;flex-direction:column;gap:10px;}
+.history-item{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;gap:12px;align-items:center;transition:border-color .2s;}
+.history-item:hover{border-color:rgba(124,58,237,.3);}
+.hi-thumb{width:54px;height:96px;border-radius:8px;background:var(--s3);flex-shrink:0;overflow:hidden;position:relative;border:1px solid var(--border);}
+.hi-thumb video{width:100%;height:100%;object-fit:cover;}
+.hi-thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.hi-info{flex:1;min-width:0;}
+.hi-title{font-size:13px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hi-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.hi-tag{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--s3);color:var(--text2);}
+.hi-actions{display:flex;gap:6px;}
+.hi-btn{padding:6px 12px;border-radius:6px;border:none;font-size:11px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .2s;}
+.hi-btn.preview{background:rgba(124,58,237,.15);color:var(--accent2);}
+.hi-btn.preview:hover{background:rgba(124,58,237,.3);}
+.hi-btn.download{background:rgba(16,185,129,.15);color:var(--green);}
+.hi-btn.download:hover{background:rgba(16,185,129,.3);}
+.hi-btn.del{background:rgba(239,68,68,.15);color:var(--red);}
+.hi-btn.del:hover{background:rgba(239,68,68,.3);}
+.history-empty{text-align:center;padding:48px 20px;color:var(--text3);}
+.history-empty .ei{font-size:36px;margin-bottom:12px;}
+.history-empty p{font-size:13px;}
+.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.history-count{font-size:12px;color:var(--text3);}
+.btn-clear-all{padding:6px 12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:6px;color:var(--red);font-size:11px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif;}
+
+/* SETTINGS OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:500;}
+.overlay.open{display:flex;}
+.overlay-panel{background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:26px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.6);}
+.overlay-panel h2{font-size:17px;font-weight:700;margin-bottom:5px;}
+.overlay-panel .sub{font-size:12px;color:var(--text2);margin-bottom:20px;line-height:1.6;}
+.api-status{font-size:11px;margin-top:4px;min-height:16px;}
+.api-status.ok{color:var(--green);}
+.api-status.err{color:var(--red);}
+.api-status.checking{color:var(--yellow);}
+.hint{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5;}
+.hint a{color:var(--accent2);text-decoration:none;}
+.overlay-btns{display:flex;gap:8px;margin-top:18px;}
+.btn-save{flex:1;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;}
+.btn-close{padding:11px 18px;background:var(--s2);color:var(--text2);border:1px solid var(--border);border-radius:var(--rs);font-size:13px;cursor:pointer;font-family:'Space Grotesk',sans-serif;}
+
+/* MODAL - History Preview */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:600;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:24px;width:90%;max-width:400px;text-align:center;}
+.modal-box h3{font-size:16px;font-weight:700;margin-bottom:6px;}
+.modal-box p{font-size:12px;color:var(--text2);margin-bottom:16px;}
+.modal-phone{width:160px;height:284px;margin:0 auto 16px;border-radius:20px;overflow:hidden;border:2px solid var(--border);background:#000;}
+.modal-phone video{width:100%;height:100%;object-fit:cover;}
+.modal-btns{display:flex;gap:8px;}
+
+/* API BANNER */
+.api-banner{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;}
+.api-banner p{font-size:12px;color:var(--yellow);line-height:1.5;}
+.api-banner a{color:var(--accent2);cursor:pointer;text-decoration:underline;}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:12px;font-weight:600;box-shadow:0 20px 40px rgba(0,0,0,.5);display:none;z-index:9999;max-width:280px;align-items:center;gap:7px;}
+#toast.show{display:flex;}
+#toast.success{border-left:3px solid var(--green);}
+#toast.error{border-left:3px solid var(--red);}
+#toast.info{border-left:3px solid var(--accent);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px;}
+
+/* BOTTOM NAV - mobile only */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid var(--border);padding:8px 0 env(safe-area-inset-bottom,8px);z-index:200;grid-template-columns:repeat(4,1fr);}
+.bn-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--text2);font-size:10px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif;padding:5px 0;transition:color .2s;}
+.bn-btn .bi{font-size:18px;}
+.bn-btn.active{color:var(--accent2);}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .main{grid-template-columns:1fr;}
+  .right{border-left:none;border-top:1px solid var(--border);}
+  .fields-grid-3{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:768px){
+  .header{padding:10px 14px;}
+  .logo-sub{display:none;}
+  .main{grid-template-columns:1fr;padding-bottom:65px;}
+  .left{padding:12px;border-right:none;}
+  .right{display:none;padding:12px;}
+  .right.mobile-show{display:block;}
+  .bottom-nav{display:grid;}
+  .fields-grid,.fields-grid-3{grid-template-columns:1fr;}
+  .phone-frame{width:170px;}
+  .nav-tab{padding:10px 14px;font-size:12px;}
+}
+@media(max-width:380px){
+  .phone-frame{width:145px;}
+  .hi-thumb{width:44px;height:78px;}
+}
+@media(min-width:1400px){
+  .main{grid-template-columns:1fr 400px;}
+  .phone-frame{width:240px;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🎬</div>
+    <div>
+      <div class="logo-text">Shorts Generator</div>
+      <div class="logo-sub">AI-Powered • No Watermarks • Free</div>
+    </div>
+  </div>
+  <button class="btn-settings" onclick="openSettings()">⚙️ API Keys</button>
+</div>
+
+<div class="nav-tabs" id="nav-tabs">
+  <button class="nav-tab active" onclick="switchPage('generate',this)">✨ Generate</button>
+  <button class="nav-tab" onclick="switchPage('scenes',this)">🎬 Scenes</button>
+  <button class="nav-tab" onclick="switchPage('history',this)">📂 History</button>
+</div>
+
+<div class="main">
+  <!-- LEFT -->
+  <div class="left" id="left-panel">
+
+    <!-- GENERATE PAGE -->
+    <div id="page-generate" class="page active">
+      <div id="api-banner" class="api-banner" style="display:none">
+        <span>⚠️</span>
+        <p>API keys not set. <a onclick="openSettings()">Add your ElevenLabs + Unsplash keys</a> — both are free. Takes 2 minutes.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📝 Your Script</div>
+        <div class="field">
+          <textarea id="script-input" placeholder="Paste your script here in any language...
+
+Example (English):
+Did you know that drinking water first thing in the morning can boost your energy by 30 percent? Try this simple habit tomorrow and feel the difference yourself.
+
+Example (Urdu Romanized):
+Kya aap jante hain ke subah uthke paani peena aapki energy 30 percent barha sakta hai? Kal subah ye aadat azmayein aur farq mehsoos karein." oninput="onScriptChange()"></textarea>
+          <div class="script-meta">
+            <span id="word-count">0 words</span>
+            <span id="est-duration">Est. duration: ~0s</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🌐 Language & Voice</div>
+        <div class="fields-grid">
+          <div class="field">
+            <label>Script Language</label>
+            <select id="lang-select" onchange="onLangChange()">
+              <option value="en">🇬🇧 English</option>
+              <option value="ur">🇵🇰 Urdu (Romanized)</option>
+              <option value="hi">🇮🇳 Hindi (Romanized)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>ElevenLabs Voice</label>
+            <select id="voice-select">
+              <option value="21m00Tcm4TlvDq8ikWAM">Rachel — Female (Clear)</option>
+              <option value="pNInz6obpgDQGcFmaJgB">Adam — Male (Deep)</option>
+              <option value="EXAVITQu4vr4xnSDxMaL">Bella — Female (Warm)</option>
+              <option value="ErXwobaYiN019PkySvjV">Antoni — Male (Smooth)</option>
+              <option value="VR6AewLTigWG4xSOukaG">Arnold — Male (Strong)</option>
+              <option value="AZnzlk1XvdvUeBnXmlld">Domi — Female (Confident)</option>
+              <option value="yoZ06aMxZJJ28mfd3POQ">Sam — Male (Energetic)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Narrative Speed</label>
+          <div class="slider-wrap">
+            <span style="font-size:11px;color:var(--text3)">Slow</span>
+            <input type="range" id="speed-slider" min="0.7" max="1.3" step="0.05" value="1.0" oninput="updateSpeed()">
+            <span style="font-size:11px;color:var(--text3)">Fast</span>
+            <span class="slider-val" id="speed-val">1.0x</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Voice Tone</label>
+          <div class="tone-pills">
+            <button class="tone-pill active" onclick="selectTone(this,'professional')">Professional</button>
+            <button class="tone-pill" onclick="selectTone(this,'friendly')">Friendly</button>
+            <button class="tone-pill" onclick="selectTone(this,'energetic')">Energetic</button>
+            <button class="tone-pill" onclick="selectTone(this,'calm')">Calm</button>
+            <button class="tone-pill" onclick="selectTone(this,'serious')">Serious</button>
+            <button class="tone-pill" onclick="selectTone(this,'motivational')">Motivational</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎵 Video Settings</div>
+        <div class="fields-grid">
+          <div class="field">
+            <label>Background Music</label>
+            <select id="music-select">
+              <option value="calm">Calm / Ambient</option>
+              <option value="upbeat">Upbeat / Energetic</option>
+              <option value="motivational">Motivational</option>
+              <option value="none">No Music</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Image Display Time</label>
+            <select id="img-duration">
+              <option value="2">2 sec per image</option>
+              <option value="3" selected>3 sec per image (recommended)</option>
+              <option value="4">4 sec per image</option>
+            </select>
+          </div>
+        </div>
+        <div class="fields-grid">
+          <div class="field">
+            <label>Quality</label>
+            <select id="quality-select">
+              <option value="720" selected>720p (Recommended)</option>
+              <option value="1080">1080p (Slower)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Subtitle Style</label>
+            <select id="sub-style">
+              <option value="bottom">Bottom (Standard)</option>
+              <option value="center">Center</option>
+              <option value="none">No Subtitles</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-generate" id="btn-gen" onclick="startGeneration()">
+        <span id="btn-label">✨ Generate Short</span>
+      </button>
+
+      <div class="progress-box" id="progress-box">
+        <div class="progress-bar-outer"><div class="progress-bar-inner" id="p-bar" style="width:0%"></div></div>
+        <div class="progress-label" id="p-label">Initializing...</div>
+        <div class="progress-steps" id="p-steps"></div>
+      </div>
+    </div>
+
+    <!-- SCENES PAGE -->
+    <div id="page-scenes" class="page">
+      <div class="card">
+        <div class="card-title">🎬 Parsed Scenes</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Script is automatically split into scenes. Each scene gets a relevant image from Unsplash. Images are portrait-cropped (9:16) with max 3 seconds per scene.</p>
+        <div class="scenes-list" id="scenes-list">
+          <div style="text-align:center;padding:30px;color:var(--text3)">
+            <div style="font-size:28px;margin-bottom:8px">📝</div>
+            <p style="font-size:12px">Paste a script on the Generate tab to see scenes</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY PAGE -->
+    <div id="page-history" class="page">
+      <div class="history-header">
+        <div class="history-count" id="hist-count">0 generations saved</div>
+        <button class="btn-clear-all" onclick="clearAllHistory()">🗑 Clear All</button>
+      </div>
+      <div id="history-list" class="history-list">
+        <div class="history-empty"><div class="ei">📂</div><p>No generations yet.<br>Generate your first Short above!</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT - PREVIEW -->
+  <div class="right" id="right-panel">
+    <div class="preview-label">Preview — 9:16 Shorts Format</div>
+    <div class="phone-frame" id="phone-frame">
+      <div class="preview-empty">
+        <div class="ei">📱</div>
+        <p>Your Short<br>appears here</p>
+      </div>
+    </div>
+    <div class="preview-stats" id="preview-stats" style="display:none">
+      <div class="ps-row"><span class="ps-label">Resolution</span><span class="ps-val" id="ps-res">—</span></div>
+      <div class="ps-row"><span class="ps-label">Duration</span><span class="ps-val" id="ps-dur">—</span></div>
+      <div class="ps-row"><span class="ps-label">Language</span><span class="ps-val" id="ps-lang">—</span></div>
+      <div class="ps-row"><span class="ps-label">Scenes</span><span class="ps-val" id="ps-scenes">—</span></div>
+      <div class="ps-row"><span class="ps-label">File Size</span><span class="ps-val" id="ps-size">—</span></div>
+    </div>
+    <button class="btn-download" id="btn-dl" onclick="downloadCurrent()" disabled>⬇️ Download Video</button>
+    <div class="preview-note">No watermarks • Royalty-free images • Ready to upload on YouTube</div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bn-btn active" id="bn-gen" onclick="mobileSwitch('generate',this)"><span class="bi">✨</span>Generate</button>
+  <button class="bn-btn" id="bn-sc" onclick="mobileSwitch('scenes',this)"><span class="bi">🎬</span>Scenes</button>
+  <button class="bn-btn" id="bn-hist" onclick="mobileSwitch('history',this)"><span class="bi">📂</span>History</button>
+  <button class="bn-btn" id="bn-prev" onclick="mobileSwitch('preview',this)"><span class="bi">📱</span>Preview</button>
+</nav>
+
+<!-- SETTINGS OVERLAY -->
+<div class="overlay" id="settings-overlay">
+  <div class="overlay-panel">
+    <h2>⚙️ API Keys</h2>
+    <p class="sub">All APIs are 100% free. Paste your keys below — saved locally on your device only.</p>
+
+    <div class="field">
+      <label>ElevenLabs API Key <span style="color:var(--red)">*Required</span></label>
+      <input type="password" id="s-eleven" placeholder="sk_...">
+      <div class="api-status" id="st-eleven"></div>
+      <div class="hint">Free: 10,000 chars/month (~5 Shorts/week) • <a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a> → Profile → API Key</div>
+    </div>
+
+    <div class="field">
+      <label>Unsplash Access Key <span style="color:var(--red)">*Required</span></label>
+      <input type="password" id="s-unsplash" placeholder="f40mqmi8...">
+      <div class="api-status" id="st-unsplash"></div>
+      <div class="hint">Free: 5,000 req/hour, no watermarks • <a href="https://unsplash.com/developers" target="_blank">unsplash.com/developers</a> → New App → Access Key</div>
+    </div>
+
+    <div class="field">
+      <label>Pixabay API Key <span style="color:var(--text3)">(Optional — background music)</span></label>
+      <input type="password" id="s-pixabay" placeholder="Your Pixabay key...">
+      <div class="api-status" id="st-pixabay"></div>
+      <div class="hint">Free • <a href="https://pixabay.com/api/docs/" target="_blank">pixabay.com/api/docs</a> → API Key</div>
+    </div>
+
+    <div class="overlay-btns">
+      <button class="btn-save" onclick="saveSettings()">✓ Save & Verify Keys</button>
+      <button class="btn-close" onclick="closeSettings()">✕ Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal removed - history stores metadata only -->
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let cfg = { elevenKey:'', unsplashKey:'', pixabayKey:'' };
+let selectedTone = 'professional';
+let currentScenes = [];
+let generatedBlob = null;
+let generatedUrl = null;
+let modalDownloadUrl = null;
+let genSteps = [];
+
+// Language configs
+const LANG_CONFIG = {
+  en: { name:'English', elevenModel:'eleven_multilingual_v2', subFont:'Arial' },
+  ur: { name:'Urdu (Romanized)', elevenModel:'eleven_multilingual_v2', subFont:'Arial' },
+  hi: { name:'Hindi (Romanized)', elevenModel:'eleven_multilingual_v2', subFont:'Arial' }
+};
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+window.onload = () => {
+  loadSettings();
+  checkApiBanner();
+  renderHistory();
+  document.getElementById('script-input').focus();
+};
+
+// ════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════
+function loadSettings() {
+  cfg.elevenKey = localStorage.getItem('sg_eleven') || '';
+  cfg.unsplashKey = localStorage.getItem('sg_unsplash') || '';
+  cfg.pixabayKey = localStorage.getItem('sg_pixabay') || '';
+  document.getElementById('s-eleven').value = cfg.elevenKey;
+  document.getElementById('s-unsplash').value = cfg.unsplashKey;
+  document.getElementById('s-pixabay').value = cfg.pixabayKey;
+}
+
+async function saveSettings() {
+  cfg.elevenKey = document.getElementById('s-eleven').value.trim();
+  cfg.unsplashKey = document.getElementById('s-unsplash').value.trim();
+  cfg.pixabayKey = document.getElementById('s-pixabay').value.trim();
+  localStorage.setItem('sg_eleven', cfg.elevenKey);
+  localStorage.setItem('sg_unsplash', cfg.unsplashKey);
+  localStorage.setItem('sg_pixabay', cfg.pixabayKey);
+  checkApiBanner();
+
+  // Verify ElevenLabs
+  if (cfg.elevenKey) {
+    setApiStatus('st-eleven','checking','⏳ Verifying...');
+    try {
+      const r = await fetch('https://api.elevenlabs.io/v1/user', { headers:{'xi-api-key':cfg.elevenKey} });
+      if (r.ok) {
+        const d = await r.json();
+        const rem = (d.subscription?.character_limit||0) - (d.subscription?.character_count||0);
+        setApiStatus('st-eleven','ok',`✓ Connected — ${rem.toLocaleString()} characters remaining`);
+      } else {
+        setApiStatus('st-eleven','err','✕ Invalid key — check and retry');
+      }
+    } catch(e) { setApiStatus('st-eleven','err','✕ Network error — check connection'); }
+  }
+
+  // Verify Unsplash
+  if (cfg.unsplashKey) {
+    setApiStatus('st-unsplash','checking','⏳ Verifying...');
+    try {
+      const r = await fetch('https://api.unsplash.com/search/photos?query=nature&per_page=1',
+        { headers:{'Authorization':`Client-ID ${cfg.unsplashKey}`} });
+      if (r.ok) { setApiStatus('st-unsplash','ok','✓ Connected — Unsplash working'); }
+      else { setApiStatus('st-unsplash','err','✕ Invalid key — check and retry'); }
+    } catch(e) { setApiStatus('st-unsplash','err','✕ Network error'); }
+  }
+}
+
+function setApiStatus(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = 'api-status ' + type;
+  el.textContent = msg;
+}
+
+function checkApiBanner() {
+  document.getElementById('api-banner').style.display =
+    (!cfg.elevenKey || !cfg.unsplashKey) ? 'flex' : 'none';
+}
+
+function openSettings() { document.getElementById('settings-overlay').classList.add('open'); }
+function closeSettings() { document.getElementById('settings-overlay').classList.remove('open'); }
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+function switchPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('page-' + page);
+  if (el) el.classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (page === 'scenes') renderScenes();
+  if (page === 'history') renderHistory();
+}
+
+function mobileSwitch(target, btn) {
+  const isMobile = window.innerWidth <= 768;
+  document.querySelectorAll('.bn-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (!isMobile) return;
+
+  const left = document.getElementById('left-panel');
+  const right = document.getElementById('right-panel');
+
+  if (target === 'preview') {
+    left.style.display = 'none';
+    right.style.display = 'block';
+    right.classList.add('mobile-show');
+  } else {
+    left.style.display = 'block';
+    right.style.display = 'none';
+    right.classList.remove('mobile-show');
+    switchPage(target, null);
+    // Sync top nav
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    const map = { generate:0, scenes:1, history:2 };
+    const tabs = document.querySelectorAll('.nav-tab');
+    if (tabs[map[target]]) tabs[map[target]].classList.add('active');
+  }
+}
+
+// ════════════════════════════════════════
+// SCRIPT PARSING
+// ════════════════════════════════════════
+function onScriptChange() {
+  const text = document.getElementById('script-input').value;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const speed = parseFloat(document.getElementById('speed-slider').value);
+  const estSec = Math.round(words / (2.5 * speed));
+  document.getElementById('word-count').textContent = words + ' words';
+  document.getElementById('est-duration').textContent = `Est. duration: ~${estSec}s`;
+  parseScenes(text);
+}
+
+function onLangChange() { /* future: update subtitle font */ }
+function updateSpeed() {
+  const val = parseFloat(document.getElementById('speed-slider').value).toFixed(2);
+  document.getElementById('speed-val').textContent = val + 'x';
+  onScriptChange();
+}
+
+function parseScenes(text) {
+  if (!text.trim()) { currentScenes = []; return; }
+  // Split on sentence boundaries
+  const raw = text.match(/[^.!?\n]+[.!?\n]+/g) || [text];
+  const scenes = [];
+  let buf = '';
+  for (let i = 0; i < raw.length; i++) {
+    const s = raw[i].trim();
+    buf = buf ? buf + ' ' + s : s;
+    // Group into chunks of ~60-100 chars for natural image timing
+    if (buf.length >= 70 || i === raw.length - 1) {
+      if (buf.trim()) scenes.push(buf.trim());
+      buf = '';
+    }
+  }
+  if (buf.trim()) scenes.push(buf.trim());
+
+  currentScenes = scenes.map((text, i) => ({
+    id: i + 1,
+    text,
+    keyword: extractKeyword(text),
+    image: null,
+    imageThumb: null,
+    audio: null
+  }));
+}
+
+function extractKeyword(text) {
+  const stop = new Set(['a','an','the','and','or','but','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','may','might','can','to','of','in','on','at','by','for','with','about','from','this','that','these','those','it','its','he','she','they','we','you','i','my','your','his','her','our','their','not','no','so','very','just','also','even','when','where','why','how','what','who','which','than','then','more','most','some','any','all','both','each','few','said','say','says','ke','hai','hain','aap','kya','jo','se','ko','ne','ek','aur','nahi','kaafi','agar','toh','bhi','ya','ki','mein','par','yeh','woh','kaise','kyun','zaroor','sirf','sab','kuch','pehle','baad','phir','lekin','magar','isliye','jab','tab','jaise','aise']);
+  const words = text.toLowerCase()
+    .replace(/[^a-z\s]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 3 && !stop.has(w));
+  return words.slice(0, 3).join(' ') || 'nature landscape';
+}
+
+function renderScenes() {
+  const list = document.getElementById('scenes-list');
+  if (!currentScenes.length) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text3)"><div style="font-size:28px;margin-bottom:8px">📝</div><p style="font-size:12px">Paste a script on the Generate tab first</p></div>';
+    return;
+  }
+  list.innerHTML = currentScenes.map(s => `
+    <div class="scene-card ${s.image ? 'has-image' : ''}" id="sc-${s.id}">
+      <div class="scene-num">${s.id}</div>
+      <div class="scene-info">
+        <div class="scene-text">${s.text}</div>
+        <div class="scene-tags">
+          <span class="scene-tag">🔑 ${s.keyword}</span>
+          ${s.image ? '<span class="scene-tag ok">✓ Image ready</span>' : '<span class="scene-tag">⏳ Awaiting fetch</span>'}
+        </div>
+      </div>
+      ${s.image ? `<img class="scene-img" src="${s.imageThumb||s.image}" alt="scene" crossorigin="anonymous">` : ''}
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════
+// GENERATION
+// ════════════════════════════════════════
+async function startGeneration() {
+  const script = document.getElementById('script-input').value.trim();
+  if (!script) { toast('❌ Paste your script first', 'error'); return; }
+  if (!cfg.elevenKey) { toast('❌ Add ElevenLabs API key in ⚙️ Settings', 'error'); openSettings(); return; }
+  if (!cfg.unsplashKey) { toast('❌ Add Unsplash API key in ⚙️ Settings', 'error'); openSettings(); return; }
+
+  parseScenes(script);
+  if (!currentScenes.length) { toast('❌ Could not parse script into scenes', 'error'); return; }
+
+  const btn = document.getElementById('btn-gen');
+  btn.disabled = true;
+  document.getElementById('btn-label').textContent = '⏳ Generating...';
+  document.getElementById('btn-dl').disabled = true;
+  generatedBlob = null; generatedUrl = null;
+  genSteps = [];
+
+  const pb = document.getElementById('progress-box');
+  pb.classList.add('show');
+  setProgress(0, 'Starting...');
+
+  try {
+    // STEP 1 — Fetch images
+    addStep('Fetching relevant images from Unsplash...');
+    setProgress(5, 'Finding matching images...');
+    await fetchAllImages();
+    completeStep(0);
+    renderScenes();
+    setProgress(30, `${currentScenes.length} images ready`);
+
+    // STEP 2 — Generate voiceover
+    addStep('Generating AI voiceover via ElevenLabs...');
+    setProgress(35, 'Generating voiceover...');
+    const audioBlob = await generateVoiceover(script);
+    completeStep(1);
+    setProgress(60, 'Voiceover ready');
+
+    // STEP 3 — Compose video
+    addStep('Composing video with subtitles...');
+    setProgress(65, 'Composing frames...');
+    const videoBlob = await composeVideo(audioBlob);
+    completeStep(2);
+
+    // STEP 4 — Finalize + save to history
+    addStep('Saving to history...');
+    generatedBlob = videoBlob;
+    generatedUrl = URL.createObjectURL(videoBlob);
+    saveToHistory(script, videoBlob);
+    completeStep(3);
+    setProgress(100, '✅ Done!');
+
+    showPreview(generatedUrl, videoBlob);
+    document.getElementById('btn-dl').disabled = false;
+    toast('🎉 Short generated! Ready to download.', 'success');
+
+    // Auto-switch to preview on mobile
+    if (window.innerWidth <= 768) {
+      const btn = document.getElementById('bn-prev');
+      mobileSwitch('preview', btn);
+    }
+
+  } catch(err) {
+    setProgress(0, '❌ ' + err.message);
+    toast('❌ ' + err.message, 'error');
+    console.error(err);
+  }
+
+  btn.disabled = false;
+  document.getElementById('btn-label').textContent = '✨ Generate Short';
+}
+
+// ════════════════════════════════════════
+// FETCH IMAGES
+// ════════════════════════════════════════
+async function fetchAllImages() {
+  const imgDur = parseInt(document.getElementById('img-duration').value) || 3;
+  for (let i = 0; i < currentScenes.length; i++) {
+    const scene = currentScenes[i];
+    setProgress(5 + (i / currentScenes.length) * 25, `Fetching image ${i+1}/${currentScenes.length}: "${scene.keyword}"`);
+    try {
+      // Try specific keyword first
+      let url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(scene.keyword)}&per_page=3&orientation=portrait&content_filter=high`;
+      let r = await fetch(url, { headers:{'Authorization':`Client-ID ${cfg.unsplashKey}`} });
+      if (r.ok) {
+        const d = await r.json();
+        if (d.results && d.results.length > 0) {
+          // Pick most relevant (first result is best match)
+          const photo = d.results[0];
+          scene.image = photo.urls.regular;
+          scene.imageThumb = photo.urls.thumb;
+          scene.imageFull = photo.urls.full;
+          scene.imageAlt = photo.alt_description || scene.keyword;
+        }
+      }
+      // Fallback: random portrait from broader keyword
+      if (!scene.image) {
+        const words = scene.keyword.split(' ');
+        const broader = words[0] || 'nature';
+        const r2 = await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(broader)}&orientation=portrait`,
+          { headers:{'Authorization':`Client-ID ${cfg.unsplashKey}`} });
+        if (r2.ok) {
+          const d2 = await r2.json();
+          scene.image = d2.urls?.regular;
+          scene.imageThumb = d2.urls?.thumb;
+        }
+      }
+      // Last fallback: picsum
+      if (!scene.image) {
+        scene.image = `https://picsum.photos/seed/${scene.id * 7}/720/1280`;
+        scene.imageThumb = scene.image;
+      }
+    } catch(e) {
+      scene.image = `https://picsum.photos/seed/${scene.id * 7}/720/1280`;
+      scene.imageThumb = scene.image;
+    }
+    await sleep(250); // Respect rate limit
+  }
+}
+
+// ════════════════════════════════════════
+// VOICEOVER
+// ════════════════════════════════════════
+async function generateVoiceover(script) {
+  const voiceId = document.getElementById('voice-select').value;
+  const lang = document.getElementById('lang-select').value;
+  const speed = parseFloat(document.getElementById('speed-slider').value);
+  const langConf = LANG_CONFIG[lang];
+
+  // ONLY send the user's script — no instructions, no tone text, nothing extra
+  // ElevenLabs reads EVERYTHING as speech, so any added text gets spoken aloud
+  // Language is determined by the script text itself (Urdu romanized = Urdu voice)
+  // Tone is controlled by voice choice and stability settings only
+
+  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'audio/mpeg',
+      'Content-Type': 'application/json',
+      'xi-api-key': cfg.elevenKey
+    },
+    body: JSON.stringify({
+      text: script, // ONLY the user's script, nothing else
+      model_id: 'eleven_multilingual_v2', // handles Urdu, Hindi, English automatically
+      voice_settings: {
+        stability: selectedTone === 'calm' ? 0.8 : selectedTone === 'energetic' ? 0.3 : 0.5,
+        similarity_boost: 0.75,
+        style: selectedTone === 'energetic' || selectedTone === 'motivational' ? 0.6 : 0.2,
+        use_speaker_boost: true
+      }
+    })
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    if (res.status === 401) throw new Error('ElevenLabs API key is invalid. Check Settings.');
+    if (res.status === 429) throw new Error('ElevenLabs monthly quota reached. Try next month or upgrade.');
+    if (res.status === 422) throw new Error('Script issue: ' + errText.slice(0,100));
+    throw new Error(`ElevenLabs error ${res.status}`);
+  }
+
+  return await res.blob();
+}
+
+// ════════════════════════════════════════
+// VIDEO COMPOSITION
+// ════════════════════════════════════════
+async function composeVideo(audioBlob) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const qualityVal = document.getElementById('quality-select').value;
+      const w = qualityVal === '1080' ? 1080 : 720;
+      const h = qualityVal === '1080' ? 1920 : 1280;
+      const imgDurMax = parseInt(document.getElementById('img-duration').value) || 3;
+      const speedVal = parseFloat(document.getElementById('speed-slider').value) || 1.0;
+      const subStyle = document.getElementById('sub-style').value;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+
+      // Load all scene images
+      const images = await Promise.all(
+        currentScenes.map((s, i) => loadImg(s.image || `https://picsum.photos/seed/${i+1}/${w}/${h}`))
+      );
+
+      // Load audio
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audioEl = new Audio(audioUrl);
+      audioEl.crossOrigin = 'anonymous';
+
+      // FIX 2: Apply speed via playbackRate — this actually works in all browsers
+      // 1.3x = audio plays 30% faster, voice sounds faster
+      audioEl.playbackRate = speedVal;
+
+      await new Promise((res, rej) => {
+        audioEl.onloadedmetadata = res;
+        audioEl.onerror = () => rej(new Error('Audio load failed'));
+        audioEl.load();
+      });
+
+      // Real duration accounts for speed adjustment
+      const rawDuration = audioEl.duration;
+      const totalDuration = rawDuration / speedVal; // actual wall-clock time at this speed
+      setProgress(70, `Audio: ${rawDuration.toFixed(1)}s raw → ${totalDuration.toFixed(1)}s at ${speedVal}x speed`);
+
+      // FIX 3: Image timing — each image shows exactly imgDurMax seconds
+      // Calculate how many images we need to cover total duration
+      // Scene index advances every imgDurMax seconds, cycling through scenes if needed
+      const totalImages = Math.ceil(totalDuration / imgDurMax);
+
+      // Build image sequence: map each time slot to a scene
+      // If totalImages > scenes, we cycle back or pick varied scenes
+      const imageSequence = [];
+      for (let i = 0; i < totalImages; i++) {
+        imageSequence.push(i % currentScenes.length);
+      }
+
+      // Build word-by-word subtitle timeline
+      // Split ALL words across total duration proportionally
+      const allWords = currentScenes.flatMap(s => s.text.split(/\s+/).filter(Boolean));
+      const msPerWord = (totalDuration * 1000) / allWords.length;
+      const wordTimeline = allWords.map((word, i) => ({
+        word,
+        startMs: i * msPerWord,
+        endMs: (i + 1) * msPerWord
+      }));
+
+      // Setup MediaRecorder
+      const stream = canvas.captureStream(30);
+
+      // Add audio
+      let audioCtx, source, dest;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        source = audioCtx.createMediaElementSource(audioEl);
+        dest = audioCtx.createMediaStreamDestination();
+        source.connect(dest);
+        source.connect(audioCtx.destination);
+        const audioTrack = dest.stream.getAudioTracks()[0];
+        if (audioTrack) stream.addTrack(audioTrack);
+      } catch(e) {
+        console.warn('AudioContext setup failed, video will be silent:', e);
+      }
+
+      // Choose best supported format
+      const mimeType = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
+        .find(t => MediaRecorder.isTypeSupported(t)) || 'video/webm';
+
+      const chunks = [];
+      const recorder = new MediaRecorder(stream, {
+        mimeType,
+        videoBitsPerSecond: qualityVal === '1080' ? 4500000 : 2000000
+      });
+
+      recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: mimeType });
+        resolve(blob);
+      };
+      recorder.onerror = e => reject(new Error('Recording error: ' + e.error));
+
+      // Subtitle parsing: only the actual spoken words
+      // Each scene's text IS the subtitle — no extra text added
+      recorder.start(100);
+      audioEl.play();
+
+      let startTime = null;
+      let animId;
+
+      function drawFrame(ts) {
+        if (!startTime) startTime = ts;
+        const elapsed = (ts - startTime) / 1000; // wall-clock seconds
+        const elapsedMs = elapsed * 1000;
+
+        // Stop when done
+        if (elapsed >= totalDuration + 0.5) {
+          cancelAnimationFrame(animId);
+          audioEl.pause();
+          setTimeout(() => recorder.stop(), 300);
+          return;
+        }
+
+        // FIX 3: Which image slot are we in? (each slot = imgDurMax seconds)
+        const imgSlot = Math.min(Math.floor(elapsed / imgDurMax), imageSequence.length - 1);
+        const sceneIdx = imageSequence[imgSlot];
+        const slotProgress = (elapsed % imgDurMax) / imgDurMax;
+        const currentImg = images[sceneIdx];
+
+        // Draw black background
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, w, h);
+
+        if (currentImg && currentImg.naturalWidth) {
+          // COVER FIT — fills 9:16 frame, crops sides
+          const ir = currentImg.naturalWidth / currentImg.naturalHeight;
+          const fr = w / h;
+          let dw, dh, dx, dy;
+          if (ir > fr) {
+            dh = h; dw = h * ir;
+            dx = (w - dw) / 2; dy = 0;
+          } else {
+            dw = w; dh = w / ir;
+            dx = 0; dy = (h - dh) / 2;
+          }
+
+          // Ken Burns: gentle zoom per slot, resets each new image
+          const scale = 1 + slotProgress * 0.05;
+          ctx.save();
+          ctx.translate(w/2, h/2);
+          ctx.scale(scale, scale);
+          ctx.translate(-w/2, -h/2);
+          ctx.drawImage(currentImg, dx, dy, dw, dh);
+          ctx.restore();
+
+          // Gradient overlay
+          const gr = ctx.createLinearGradient(0, 0, 0, h);
+          gr.addColorStop(0, 'rgba(0,0,0,0.15)');
+          gr.addColorStop(0.55, 'rgba(0,0,0,0.05)');
+          gr.addColorStop(1, 'rgba(0,0,0,0.72)');
+          ctx.fillStyle = gr;
+          ctx.fillRect(0, 0, w, h);
+        }
+
+        // FIX 4: Word-by-word subtitles — only show words being spoken RIGHT NOW
+        if (subStyle !== 'none') {
+          // Find current word and build a short phrase window (current + next 2 words)
+          const currentWordIdx = wordTimeline.findIndex(
+            wt => elapsedMs >= wt.startMs && elapsedMs < wt.endMs
+          );
+          if (currentWordIdx >= 0) {
+            // Show a window of 4 words centered on current word
+            const windowStart = Math.max(0, currentWordIdx - 1);
+            const windowEnd = Math.min(wordTimeline.length - 1, currentWordIdx + 2);
+            const phrase = wordTimeline.slice(windowStart, windowEnd + 1).map(wt => wt.word).join(' ');
+            const wordProgress = (elapsedMs - wordTimeline[currentWordIdx].startMs) / msPerWord;
+            drawSubtitle(ctx, phrase, w, h, subStyle, wordProgress);
+          }
+        }
+
+        setProgress(
+          70 + (elapsed / totalDuration) * 27,
+          `Composing: ${elapsed.toFixed(1)}s / ${totalDuration.toFixed(1)}s`
+        );
+
+        animId = requestAnimationFrame(drawFrame);
+      }
+
+      animId = requestAnimationFrame(drawFrame);
+
+    } catch(err) { reject(err); }
+  });
+}
+
+// ════════════════════════════════════════
+// SUBTITLE RENDERER
+// ════════════════════════════════════════
+function drawSubtitle(ctx, text, w, h, style, progress) {
+  if (!text) return;
+  const fontSize = Math.round(w * 0.044);
+  ctx.save();
+  ctx.font = `700 ${fontSize}px 'Arial', 'Helvetica', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+
+  const maxW = w * 0.82;
+  const words = text.split(' ');
+  const lines = [];
+  let line = '';
+  words.forEach(word => {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxW && line) {
+      lines.push(line); line = word;
+    } else { line = test; }
+  });
+  if (line) lines.push(line);
+
+  const lineH = fontSize * 1.45;
+  const totalH = lines.length * lineH;
+  const padX = fontSize * 0.7;
+  const padY = fontSize * 0.5;
+
+  // Position
+  let baseY;
+  if (style === 'center') {
+    baseY = (h - totalH) / 2;
+  } else {
+    baseY = h * 0.80 - totalH / 2;
+  }
+
+  // Fade in effect at scene start
+  const alpha = Math.min(progress * 5, 1);
+  ctx.globalAlpha = alpha;
+
+  // Subtitle background pill
+  const bgW = Math.min(maxW + padX * 2, w * 0.92);
+  const bgX = (w - bgW) / 2;
+  const bgY = baseY - padY;
+  const bgH = totalH + padY * 2;
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  roundRect(ctx, bgX, bgY, bgW, bgH, 10);
+  ctx.fill();
+
+  // Text
+  ctx.fillStyle = '#FFFFFF';
+  ctx.shadowColor = 'rgba(0,0,0,0.95)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 2;
+  lines.forEach((l, i) => {
+    ctx.fillText(l, w / 2, baseY + i * lineH);
+  });
+  ctx.restore();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ════════════════════════════════════════
+// IMAGE LOADER
+// ════════════════════════════════════════
+function loadImg(url) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => {
+      // Try without crossOrigin
+      const img2 = new Image();
+      img2.onload = () => resolve(img2);
+      img2.onerror = () => resolve(null);
+      img2.src = `https://picsum.photos/720/1280?random=${Math.random()}`;
+    };
+    img.src = url;
+  });
+}
+
+// ════════════════════════════════════════
+// PREVIEW
+// ════════════════════════════════════════
+function showPreview(url, blob) {
+  const frame = document.getElementById('phone-frame');
+  frame.innerHTML = `<video src="${url}" controls loop muted playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
+
+  const quality = document.getElementById('quality-select').value;
+  const lang = LANG_CONFIG[document.getElementById('lang-select').value].name;
+  const dur = currentScenes.reduce((s,c) => s + (c.text.split(/\s+/).length / 2.5), 0);
+  const sizeKB = blob ? Math.round(blob.size / 1024) : 0;
+
+  document.getElementById('preview-stats').style.display = 'block';
+  document.getElementById('ps-res').textContent = quality === '1080' ? '1080×1920' : '720×1280';
+  document.getElementById('ps-dur').textContent = `~${Math.round(dur)}s (auto-detected)`;
+  document.getElementById('ps-lang').textContent = lang;
+  document.getElementById('ps-scenes').textContent = currentScenes.length;
+  document.getElementById('ps-size').textContent = sizeKB > 1024 ? `${(sizeKB/1024).toFixed(1)} MB` : `${sizeKB} KB`;
+}
+
+function downloadCurrent() {
+  if (!generatedBlob) { toast('❌ No video generated', 'error'); return; }
+  doDownload(generatedBlob, `short-${Date.now()}`);
+}
+
+function doDownload(blob, name) {
+  const ext = blob.type.includes('mp4') ? 'mp4' : 'webm';
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${name}.${ext}`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  toast('⬇️ Downloading — ready to upload on YouTube!', 'info');
+}
+
+// ════════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════════
+function saveToHistory(script, blob) {
+  const lang = document.getElementById('lang-select').value;
+  const quality = document.getElementById('quality-select').value;
+  const speed = document.getElementById('speed-slider').value;
+  const voice = document.getElementById('voice-select').options[document.getElementById('voice-select').selectedIndex].text;
+  const words = script.trim().split(/\s+/).length;
+
+  const entry = {
+    id: Date.now().toString(),
+    date: new Date().toISOString(),
+    scriptPreview: script.slice(0, 150) + (script.length > 150 ? '...' : ''),
+    scriptFull: script, // save full script for re-generation
+    lang: LANG_CONFIG[lang]?.name || lang,
+    langCode: lang,
+    quality,
+    speed: speed.toString(),
+    voice,
+    tone: selectedTone,
+    words,
+    scenes: currentScenes.length,
+    sizeKB: blob ? Math.round(blob.size / 1024) : 0
+  };
+
+  let history = getHistory();
+  history.unshift(entry);
+  // No limit — metadata only is tiny
+  try {
+    localStorage.setItem('sg_history', JSON.stringify(history));
+  } catch(e) {
+    console.warn('History save failed:', e);
+  }
+  renderHistory();
+}
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem('sg_history') || '[]'); }
+  catch(e) { return []; }
+}
+
+function renderHistory() {
+  const history = getHistory();
+  const list = document.getElementById('history-list');
+  const countEl = document.getElementById('hist-count');
+  if (countEl) countEl.textContent = `${history.length} generation${history.length !== 1 ? 's' : ''} saved`;
+
+  if (!history.length) {
+    list.innerHTML = '<div class="history-empty"><div class="ei">📂</div><p>No generations yet.<br>Generate your first Short above!</p></div>';
+    return;
+  }
+
+  list.innerHTML = history.map(entry => {
+    const date = new Date(entry.date);
+    const dateStr = date.toLocaleDateString('en-PK', { day:'numeric', month:'short', year:'numeric' });
+    const timeStr = date.toLocaleTimeString('en-PK', { hour:'2-digit', minute:'2-digit' });
+    return `
+    <div class="history-item" id="hi-${entry.id}">
+      <div class="hi-thumb" style="display:flex;align-items:center;justify-content:center;background:var(--s3);font-size:22px">🎬</div>
+      <div class="hi-info">
+        <div class="hi-title" title="${entry.scriptFull}">${entry.scriptPreview}</div>
+        <div class="hi-meta">
+          <span class="hi-tag">📅 ${dateStr} ${timeStr}</span>
+          <span class="hi-tag">🌐 ${entry.lang}</span>
+          <span class="hi-tag">📐 ${entry.quality}p</span>
+          <span class="hi-tag">⚡ ${entry.speed}x</span>
+          <span class="hi-tag">🎭 ${entry.tone||'professional'}</span>
+          <span class="hi-tag">📝 ${entry.words} words</span>
+          <span class="hi-tag">🎬 ${entry.scenes} scenes</span>
+          <span class="hi-tag">💾 ~${entry.sizeKB}KB</span>
+        </div>
+        <div class="hi-actions">
+          <button class="hi-btn preview" onclick="reGenerateFromHistory('${entry.id}')">🔄 Re-Generate</button>
+          <button class="hi-btn del" onclick="deleteHistory('${entry.id}')">🗑 Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function reGenerateFromHistory(id) {
+  const history = getHistory();
+  const entry = history.find(e => e.id === id);
+  if (!entry) return;
+  // Load all settings from this entry back into the form
+  document.getElementById('script-input').value = entry.scriptFull;
+  if (entry.langCode) document.getElementById('lang-select').value = entry.langCode;
+  if (entry.quality) document.getElementById('quality-select').value = entry.quality;
+  if (entry.speed) {
+    document.getElementById('speed-slider').value = entry.speed;
+    document.getElementById('speed-val').textContent = entry.speed + 'x';
+  }
+  if (entry.tone) {
+    selectedTone = entry.tone;
+    document.querySelectorAll('.tone-pill').forEach(b => {
+      b.classList.toggle('active', b.textContent.toLowerCase() === entry.tone);
+    });
+  }
+  onScriptChange();
+  // Switch to generate tab
+  switchPage('generate', document.querySelector('.nav-tab'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab')[0].classList.add('active');
+  if (window.innerWidth <= 768) mobileSwitch('generate', document.getElementById('bn-gen'));
+  toast('✅ Settings loaded — click Generate to recreate', 'success');
+}
+
+function deleteHistory(id) {
+  if (!confirm('Delete this entry?')) return;
+  let history = getHistory();
+  history = history.filter(e => e.id !== id);
+  localStorage.setItem('sg_history', JSON.stringify(history));
+  renderHistory();
+  toast('🗑 Deleted', 'info');
+}
+
+function clearAllHistory() {
+  if (!confirm('Delete ALL history? This cannot be undone.')) return;
+  localStorage.removeItem('sg_history');
+  renderHistory();
+  toast('🗑 All history cleared', 'info');
+}
+
+function closeModal() {
+  const modal = document.getElementById('hist-modal');
+  modal.classList.remove('open');
+  const v = document.getElementById('modal-video');
+  v.pause(); v.src = '';
+  modalDownloadUrl = null;
+}
+
+// ════════════════════════════════════════
+// PROGRESS
+// ════════════════════════════════════════
+function setProgress(pct, label) {
+  document.getElementById('p-bar').style.width = Math.min(pct, 100) + '%';
+  document.getElementById('p-label').textContent = label;
+}
+
+function addStep(text) {
+  genSteps.push({ text, done: false });
+  renderSteps();
+}
+
+function completeStep(i) {
+  if (genSteps[i]) { genSteps[i].done = true; renderSteps(); }
+}
+
+function renderSteps() {
+  const el = document.getElementById('p-steps');
+  el.innerHTML = genSteps.map((s, i) => {
+    const activeIdx = genSteps.findIndex(x => !x.done);
+    const cls = s.done ? 'done' : (i === activeIdx ? 'act' : '');
+    const icon = s.done ? '✓' : (cls === 'act' ? '⟳' : '○');
+    return `<div class="p-step ${cls}">${icon} ${s.text}</div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function selectTone(btn, tone) {
+  document.querySelectorAll('.tone-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedTone = tone;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function toast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 3500);
+}
+</script>
+</body>
+</html>
